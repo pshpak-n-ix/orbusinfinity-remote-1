@@ -1,4 +1,4 @@
-import GridMock from "./components/GridMock";
+import GridMock from './components/GridMock';
 
 function App() {
   return <GridMock />;
