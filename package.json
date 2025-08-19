@@ -22,6 +22,7 @@
     "@typescript-eslint/eslint-plugin": "8.39.1",
     "@typescript-eslint/parser": "8.39.1",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-config-react-app": "^7.0.1",
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.4.2",
     "react-scripts": "5.0.1",
@@ -44,7 +45,6 @@
     "analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
     "type-check": "tsc --noEmit"
   },
-
   "browserslist": {
     "production": [
       ">0.2%",
