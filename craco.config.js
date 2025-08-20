@@ -18,11 +18,11 @@ module.exports = {
           },
           // Shared dependencies MUST be configured identically to the shell app.
           shared: {
-            ...deps,
-            react: { singleton: true, requiredVersion: deps.react },
-            "react-dom": { singleton: true, requiredVersion: deps["react-dom"] },
-            "react-router-dom": { singleton: true, requiredVersion: deps["react-router-dom"] },
-            "@fluentui/react-components": { singleton: true, requiredVersion: deps["@fluentui/react-components"] },
+            react: { singleton: true, requiredVersion: ">=18.3.1" },
+            "react-dom": { singleton: true, requiredVersion: ">=18.3.1" },
+            "react-router-dom": { singleton: true, requiredVersion: ">=6.29.0" },
+            "@fluentui/react-components": { singleton: true, requiredVersion: ">=9.68.3" },
+            "@orbusinfinity-shared/ui-components": { singleton: false, requiredVersion: ">=0.0.101 & <1" },
           },
         }),
       ],

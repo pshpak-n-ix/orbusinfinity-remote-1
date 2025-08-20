@@ -10,18 +10,9 @@ import {
   SkeletonItem,
   makeStyles,
 } from '@fluentui/react-components';
+import { PageContentWrapper } from '@orbusinfinity-shared/ui-components';
 
-// --- Styling using makeStyles (Fluent UI v9 approach) ---
-// This is the recommended way to apply custom styles in Fluent UI v9.
 const useStyles = makeStyles({
-  root: {
-    padding: '32px',
-  },
-  header: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    marginBottom: '24px',
-  },
   container: {
     backgroundColor: '#ffffff',
     borderRadius: '8px',
@@ -35,8 +26,6 @@ const useStyles = makeStyles({
   },
 });
 
-// --- Mock Data ---
-// This is the data that will be displayed in the table after the loader.
 const mockItems = [
   {
     key: '1',
@@ -110,23 +99,19 @@ const TableSkeleton = () => {
 };
 
 const GridMock = () => {
-  // State to manage the loading status
   const [isLoading, setIsLoading] = useState(true);
   const styles = useStyles();
 
-  // Effect to simulate data loading
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000); // 1 second delay
+    }, 1000);
 
-    // Cleanup timer on unmount
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className={styles.root}>
-      <h1 className={styles.header}>Projects</h1>
+    <PageContentWrapper title='Projects'>
       <div className={styles.container}>
         {isLoading ? (
           <TableSkeleton />
@@ -154,7 +139,7 @@ const GridMock = () => {
           </Table>
         )}
       </div>
-    </div>
+    </PageContentWrapper>
   );
 };
 
