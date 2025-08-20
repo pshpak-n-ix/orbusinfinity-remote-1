@@ -35,5 +35,19 @@ module.exports = {
   devServer: {
     // Use a different port to avoid conflicts with the shell app.
     port: 3002,
+    // CORS configuration to allow cross-origin requests for Module Federation
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
+      // Allow framing from development ports 3000-3100 for iframe compatibility
+      'Content-Security-Policy': [
+        'frame-ancestors',
+        "'self'",
+        ...Array.from({length: 101}, (_, i) => `http://localhost:${3000 + i}`)
+      ].join(' ')
+    },
+    // Additional settings for Module Federation
+    allowedHosts: "all",
   },
 };
