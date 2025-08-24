@@ -2,9 +2,10 @@
   "name": "remote-1",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@fluentui/react-components": "^9.68.3",
-    "@orbusinfinity-shared/ui-components": "^0.0.101",
+    "@orbusinfinity-shared/ui-components": "^3.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "6.29.0",

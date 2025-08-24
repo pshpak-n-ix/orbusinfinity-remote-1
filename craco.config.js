@@ -1,7 +1,28 @@
 const { ModuleFederationPlugin } = require("webpack").container;
+const { DefinePlugin } = require("webpack");
 const deps = require("./package.json").dependencies;
 
 module.exports = {
+  babel: {
+    presets: [
+      [
+        '@babel/preset-react',
+        {
+          runtime: 'automatic',
+          development: false  // Force production JSX transform
+        }
+      ]
+    ],
+    plugins: [
+      [
+        '@babel/plugin-transform-react-jsx',
+        {
+          runtime: 'automatic',
+          development: false  // Explicitly disable development JSX
+        }
+      ]
+    ]
+  },
   webpack: {
     plugins: {
       add: [
@@ -22,13 +43,27 @@ module.exports = {
             "react-dom": { singleton: true, requiredVersion: ">=18.3.1" },
             "react-router-dom": { singleton: true, requiredVersion: ">=6.29.0" },
             "@fluentui/react-components": { singleton: true, requiredVersion: ">=9.68.3" },
-            "@orbusinfinity-shared/ui-components": { singleton: false, requiredVersion: ">=0.0.101 & <1" },
+            "@orbusinfinity-shared/ui-components": { singleton: false, requiredVersion: ">=3" },
           },
+        }),
+        // Explicitly define NODE_ENV for React's build process
+        new DefinePlugin({
+          'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
         }),
       ],
     },
     configure: (webpackConfig) => {
-      webpackConfig.output.publicPath = "auto";
+      // Force production mode when NODE_ENV is production
+      if (process.env.NODE_ENV === 'production') {
+        webpackConfig.mode = 'production';
+      }
+      
+      // Use absolute publicPath in production to ensure assets load correctly from nginx
+      if (process.env.NODE_ENV === 'development') {
+        webpackConfig.output.publicPath = "auto";
+      } else {
+        webpackConfig.output.publicPath = "http://localhost:8080/remote-1/0.1.0/";
+      }
       return webpackConfig;
     },
   },
@@ -40,11 +75,14 @@ module.exports = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
       "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
-      // Allow framing from development ports 3000-3100 for iframe compatibility
+      // Environment-specific CSP origins based on NODE_ENV
       'Content-Security-Policy': [
         'frame-ancestors',
         "'self'",
-        ...Array.from({length: 101}, (_, i) => `http://localhost:${3000 + i}`)
+        ...(process.env.NODE_ENV === 'development' 
+          ? Array.from({length: 101}, (_, i) => `http://localhost:${3000 + i}`)
+          : ['http://localhost:8080']
+        )
       ].join(' ')
     },
     // Additional settings for Module Federation
