@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "./",
   "dependencies": {
+    "@orbusinfinity-shared/communication": "2.0.4",
     "@fluentui/react-components": "^9.68.3",
     "@orbusinfinity-shared/ui-components": "^3.0.0",
     "react": "^18.3.1",
