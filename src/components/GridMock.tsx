@@ -80,9 +80,9 @@ const TableSkeleton = () => {
     <div className={styles.table}>
       <Skeleton>
         {/* We create a few skeleton rows to mimic the table structure */}
-        {[...Array(5)].map((_, index) => (
+        {Array.from({ length: 5 }, (_, index) => (
           <div
-            key={index}
+            key={`skeleton-row-${index}`}
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -107,7 +107,9 @@ const GridMock = () => {
       setIsLoading(false);
     }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
