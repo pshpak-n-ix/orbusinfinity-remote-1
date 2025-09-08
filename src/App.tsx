@@ -9,60 +9,86 @@ import type {
 import {
   ContentView24Filled,
   ContentView24Regular,
+  Table24Filled,
+  Table24Regular,
   bundleIcon,
 } from '@fluentui/react-icons';
+import { ApolloProvider } from '@apollo/client/react';
+import apolloClient from './apollo/client';
 
 const ContentIcon = bundleIcon(ContentView24Filled, ContentView24Regular);
+const TableIcon = bundleIcon(Table24Filled, Table24Regular);
 
-// Navigation configuration for Remote-1
 const navigationItems: NavigationItem[] = [
   {
-    id: 'grid',
+    id: 'todos',
     icon: <ContentIcon />,
-    label: 'Grid View',
+    label: 'TODO List',
     path: '/',
     type: 'route',
     enabled: true,
     order: 1,
   },
+  {
+    id: 'projects',
+    icon: <TableIcon />,
+    label: 'Projects',
+    path: '/projects',
+    type: 'route',
+    enabled: true,
+    order: 2,
+  },
 ];
 
-// Route configuration for Remote-1
 const routeConfigs: RouteConfig[] = [
   {
-    id: 'grid',
+    id: 'todos',
     path: '/',
+    exact: true,
+    componentLoader: createLocalNamedComponentLoader(
+      () => import('./components/TodoList'),
+      'default'
+    ),
+    enabled: true,
+    title: 'TODO List',
+    description: 'Manage your TODO items',
+  },
+  {
+    id: 'projects',
+    path: '/projects',
     exact: true,
     componentLoader: createLocalNamedComponentLoader(
       () => import('./components/GridMock'),
       'default'
     ),
     enabled: true,
-    title: 'Grid View',
-    description: 'Data grid component showcase',
+    title: 'Projects',
+    description: 'View and manage project data',
   },
 ];
 
 function App() {
   return (
-    <AppContainer
-      layoutProps={{
-        headerProps: {
-          appName: 'Remote-1 Grid',
-          showSearch: false,
-          showHelp: false,
-          showNotifications: false,
-          showSettings: false,
-          showUserMenu: false,
-        },
-        sidebarProps: {
-          navigationItems,
-        },
-        mainContentProps: {
-          routes: routeConfigs,
-        },
-      }}
-    />
+    <ApolloProvider client={apolloClient}>
+      <AppContainer
+        layoutProps={{
+          headerProps: {
+            appName: 'TODO Manager',
+            showSearch: false,
+            showHelp: false,
+            showNotifications: false,
+            showSettings: false,
+            showUserMenu: false,
+          },
+          sidebarProps: {
+            navigationItems,
+          },
+          mainContentProps: {
+            routes: routeConfigs,
+          },
+        }}
+      />
+    </ApolloProvider>
   );
 }
 

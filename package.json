@@ -4,10 +4,12 @@
   "private": true,
   "homepage": "./",
   "dependencies": {
+    "@apollo/client": "^4.0.4",
     "@fluentui/react-components": "^9.68.3",
     "@orbusinfinity-shared/app-container": "^1.4.3",
     "@orbusinfinity-shared/communication": "^2.0.12",
     "@orbusinfinity-shared/ui-components": "^3.0.8",
+    "graphql": "^16.11.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-error-boundary": "^6.0.0",
