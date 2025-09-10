@@ -18,13 +18,9 @@ import {
   makeStyles,
   MessageBar,
 } from '@fluentui/react-components';
-import { UPDATE_TODO, GET_TODOS, TodoPriority } from '../apollo/operations';
+import { UPDATE_TODO, TodoPriority } from '../apollo/operations';
 import type { Todo, UpdateTodoInput } from '../apollo/operations';
-import {
-  useOptimisticCache,
-  DataStructure,
-  DEFAULT_TODOS_QUERY_VARIABLES,
-} from '../utils/optimisticCacheManager';
+import { useContextEntityMutations } from '../utils/hooks/useEntityCache';
 
 const useStyles = makeStyles({
   dialogBody: {
@@ -42,6 +38,7 @@ const useStyles = makeStyles({
 
 interface EditTodoDialogProps {
   todo: Todo;
+  entityKey: string;
   open: boolean;
   onClose: () => void;
   onSuccess?: (updatedTodo?: Todo) => void;
@@ -49,6 +46,7 @@ interface EditTodoDialogProps {
 
 const EditTodoDialog = ({
   todo,
+  entityKey,
   open,
   onClose,
   onSuccess,
@@ -63,16 +61,9 @@ const EditTodoDialog = ({
   const [errors, setErrors] = useState<string[]>([]);
   const styles = useStyles();
 
-  const { onUpdateCompleted } = useOptimisticCache<
-    Todo & Record<string, unknown>
-  >({
-    query: GET_TODOS,
-    variables: DEFAULT_TODOS_QUERY_VARIABLES,
-    queryResultKey: 'todos',
-    dataStructure: DataStructure.PAGINATED,
-    entityName: 'Todo',
-    idField: 'id',
-  });
+  // Use the new simplified entity mutations hook
+  const { updateEntity: updateTodo } =
+    useContextEntityMutations<Todo>(entityKey);
 
   useEffect(() => {
     setFormData({
@@ -87,7 +78,7 @@ const EditTodoDialog = ({
     });
   }, [todo]);
 
-  const [updateTodo, { loading }] = useMutation<{
+  const [updateTodoMutation, { loading }] = useMutation<{
     updateTodo: {
       id: string;
       title: string;
@@ -99,12 +90,10 @@ const EditTodoDialog = ({
       updatedAt: string;
     };
   }>(UPDATE_TODO, {
-    update: (_cache, { data }) => {
-      if (data?.updateTodo) {
-        onUpdateCompleted({ updateTodo: data.updateTodo });
-      }
-    },
-    onCompleted: data => {
+    onCompleted: async data => {
+      // Use the new entity cache system for optimistic updates
+      await updateTodo(data.updateTodo);
+
       setErrors([]);
       onSuccess?.(data.updateTodo);
       onClose();
@@ -119,13 +108,6 @@ const EditTodoDialog = ({
 
     if (formData.title.trim().length === 0) {
       newErrors.push('Title is required');
-    }
-
-    if (
-      formData.dueDate.length > 0 &&
-      new Date(formData.dueDate) < new Date()
-    ) {
-      newErrors.push('Due date cannot be in the past');
     }
 
     if (newErrors.length > 0) {
@@ -158,7 +140,7 @@ const EditTodoDialog = ({
     }
 
     try {
-      await updateTodo({
+      await updateTodoMutation({
         variables: {
           id: todo.id,
           input,
@@ -166,7 +148,7 @@ const EditTodoDialog = ({
       });
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error creating todo:', error);
+      console.error('Error updating todo:', error);
     }
   };
 

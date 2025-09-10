@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useQueryWithRefresh } from '../utils/hooks/useQueryWithRefresh';
+import { useState } from 'react';
+import { useTodos } from '../utils/hooks/useTodos';
 import {
   Table,
   TableHeader,
@@ -24,9 +24,8 @@ import {
   ArrowClockwise24Regular,
 } from '@fluentui/react-icons';
 import { PageContentWrapper } from '@orbusinfinity-shared/ui-components';
-import { GET_TODOS, TodoPriority } from '../apollo/operations';
+import { TodoPriority } from '../apollo/operations';
 import type { Todo } from '../apollo/types';
-import { DEFAULT_TODOS_QUERY_VARIABLES } from '../utils/optimisticCacheManager';
 import CreateTodoDialog from './CreateTodoDialog';
 import EditTodoDialog from './EditTodoDialog';
 import DeleteTodoDialog from './DeleteTodoDialog';
@@ -120,6 +119,13 @@ const formatDate = (dateString: string) => {
   });
 };
 
+const formatOptionalDate = (dateString?: string | null) => {
+  if (!dateString || dateString.length === 0) {
+    return '-';
+  }
+  return formatDate(dateString);
+};
+
 const TodoList = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -128,26 +134,12 @@ const TodoList = () => {
   const [avoidCache, setAvoidCache] = useState(false);
   const styles = useStyles();
 
-  const queryVariables = useMemo(() => DEFAULT_TODOS_QUERY_VARIABLES, []);
-
-  const { loading, error, data, load } = useQueryWithRefresh<{
-    todos: {
-      data: Todo[];
-      pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-      };
-    };
-  }>(GET_TODOS, {
-    variables: queryVariables,
-    errorPolicy: 'all',
-  });
+  // Use the new simplified hook - much cleaner!
+  const { loading, error, todos, refresh, entityKey } = useTodos();
 
   const handleRefresh = async () => {
     try {
-      await load(avoidCache);
+      await refresh(avoidCache);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Error refreshing todos:', err);
@@ -164,7 +156,7 @@ const TodoList = () => {
     setDeleteDialogOpen(true);
   };
 
-  if (error !== null && error !== undefined && !data) {
+  if (error && todos.length === 0) {
     return (
       <PageContentWrapper title='TODO List'>
         <MessageBar intent='error'>
@@ -173,8 +165,6 @@ const TodoList = () => {
       </PageContentWrapper>
     );
   }
-
-  const todos = data?.todos.data ?? [];
 
   return (
     <PageContentWrapper title='TODO List'>
@@ -213,7 +203,7 @@ const TodoList = () => {
           </div>
         </div>
 
-        {loading && !data ? (
+        {loading && !todos.length ? (
           <div className={styles.loadingContainer}>
             <Spinner label='Loading todos...' />
           </div>
@@ -259,11 +249,7 @@ const TodoList = () => {
                         {todo.priority.toLowerCase()}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      {todo.dueDate !== undefined
-                        ? formatDate(todo.dueDate)
-                        : '-'}
-                    </TableCell>
+                    <TableCell>{formatOptionalDate(todo.dueDate)}</TableCell>
                     <TableCell>{formatDate(todo.createdAt)}</TableCell>
                     <TableCell>
                       <div className={styles.actionCell}>
@@ -305,6 +291,7 @@ const TodoList = () => {
 
       <CreateTodoDialog
         open={createDialogOpen}
+        entityKey={entityKey}
         onClose={() => {
           setCreateDialogOpen(false);
         }}
@@ -314,6 +301,7 @@ const TodoList = () => {
         <>
           <EditTodoDialog
             todo={selectedTodo}
+            entityKey={entityKey}
             open={editDialogOpen}
             onClose={() => {
               setEditDialogOpen(false);
@@ -323,6 +311,7 @@ const TodoList = () => {
 
           <DeleteTodoDialog
             todo={selectedTodo}
+            entityKey={entityKey}
             open={deleteDialogOpen}
             onClose={() => {
               setDeleteDialogOpen(false);

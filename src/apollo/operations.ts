@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client';
 
-// Re-export types for convenience
 export * from './types';
 
-// GraphQL Queries
 export const GET_TODOS = gql`
   query GetTodos($filters: TodoFilterInput, $pagination: PaginationInput) {
     todos(filters: $filters, pagination: $pagination) {

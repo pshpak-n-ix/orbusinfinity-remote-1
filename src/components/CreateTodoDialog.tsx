@@ -17,14 +17,10 @@ import {
   makeStyles,
   MessageBar,
 } from '@fluentui/react-components';
-import { CREATE_TODO, GET_TODOS, TodoPriority } from '../apollo/operations';
+import { CREATE_TODO, TodoPriority } from '../apollo/operations';
 import type { CreateTodoInput } from '../apollo/operations';
 import type { Todo } from '../apollo/types';
-import {
-  useOptimisticCache,
-  DataStructure,
-  DEFAULT_TODOS_QUERY_VARIABLES,
-} from '../utils/optimisticCacheManager';
+import { useContextEntityMutations } from '../utils/hooks/useEntityCache';
 
 const useStyles = makeStyles({
   dialogBody: {
@@ -42,12 +38,14 @@ const useStyles = makeStyles({
 
 interface CreateTodoDialogProps {
   open: boolean;
+  entityKey: string;
   onClose: () => void;
   onSuccess?: (newTodo?: Todo) => void;
 }
 
 const CreateTodoDialog = ({
   open,
+  entityKey,
   onClose,
   onSuccess,
 }: CreateTodoDialogProps) => {
@@ -60,16 +58,8 @@ const CreateTodoDialog = ({
   const [errors, setErrors] = useState<string[]>([]);
   const styles = useStyles();
 
-  const { onCreateCompleted } = useOptimisticCache<
-    Todo & Record<string, unknown>
-  >({
-    query: GET_TODOS,
-    variables: DEFAULT_TODOS_QUERY_VARIABLES,
-    queryResultKey: 'todos',
-    dataStructure: DataStructure.PAGINATED,
-    entityName: 'Todo',
-    idField: 'id',
-  });
+  // Use the new simplified entity mutations hook
+  const { addEntity: addTodo } = useContextEntityMutations<Todo>(entityKey);
 
   const [createTodo, { loading }] = useMutation<{
     createTodo: {
@@ -83,12 +73,10 @@ const CreateTodoDialog = ({
       updatedAt: string;
     };
   }>(CREATE_TODO, {
-    update: (_cache, { data }) => {
-      if (data?.createTodo) {
-        onCreateCompleted({ createTodo: data.createTodo });
-      }
-    },
-    onCompleted: data => {
+    onCompleted: async data => {
+      // Use the new entity cache system for optimistic updates
+      await addTodo(data.createTodo);
+
       setFormData({
         title: '',
         description: '',
@@ -109,14 +97,6 @@ const CreateTodoDialog = ({
 
     if (formData.title.trim().length === 0) {
       newErrors.push('Title is required');
-    }
-
-    if (
-      formData.dueDate &&
-      formData.dueDate.length > 0 &&
-      new Date(formData.dueDate) < new Date()
-    ) {
-      newErrors.push('Due date cannot be in the past');
     }
 
     if (newErrors.length > 0) {

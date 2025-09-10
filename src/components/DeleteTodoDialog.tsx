@@ -12,13 +12,9 @@ import {
   makeStyles,
   MessageBar,
 } from '@fluentui/react-components';
-import { DELETE_TODO, GET_TODOS } from '../apollo/operations';
+import { DELETE_TODO } from '../apollo/operations';
 import type { Todo } from '../apollo/operations';
-import {
-  useOptimisticCache,
-  DataStructure,
-  DEFAULT_TODOS_QUERY_VARIABLES,
-} from '../utils/optimisticCacheManager';
+import { useContextEntityMutations } from '../utils/hooks/useEntityCache';
 
 const useStyles = makeStyles({
   dialogBody: {
@@ -41,6 +37,7 @@ const useStyles = makeStyles({
 
 interface DeleteTodoDialogProps {
   todo: Todo;
+  entityKey: string;
   open: boolean;
   onClose: () => void;
   onSuccess?: (deletedTodoId?: string) => void;
@@ -48,6 +45,7 @@ interface DeleteTodoDialogProps {
 
 const DeleteTodoDialog = ({
   todo,
+  entityKey,
   open,
   onClose,
   onSuccess,
@@ -55,16 +53,9 @@ const DeleteTodoDialog = ({
   const [error, setError] = useState<string>('');
   const styles = useStyles();
 
-  const { onDeleteCompleted } = useOptimisticCache<
-    Todo & Record<string, unknown>
-  >({
-    query: GET_TODOS,
-    variables: DEFAULT_TODOS_QUERY_VARIABLES,
-    queryResultKey: 'todos',
-    dataStructure: DataStructure.PAGINATED,
-    entityName: 'Todo',
-    idField: 'id',
-  });
+  // Use the new simplified entity mutations hook
+  const { removeEntity: removeTodo } =
+    useContextEntityMutations<Todo>(entityKey);
 
   const [deleteTodo, { loading }] = useMutation<{
     deleteTodo: {
@@ -72,16 +63,11 @@ const DeleteTodoDialog = ({
       message: string;
     };
   }>(DELETE_TODO, {
-    update: (_cache, { data }, { variables }) => {
-      if (
-        data?.deleteTodo.success === true &&
-        typeof variables?.id === 'string'
-      ) {
-        onDeleteCompleted(data, { id: variables.id });
-      }
-    },
-    onCompleted: data => {
+    onCompleted: async data => {
       if (data.deleteTodo.success) {
+        // Use the new entity cache system for optimistic updates
+        await removeTodo(todo.id);
+
         setError('');
         onSuccess?.(todo.id);
         onClose();
@@ -101,7 +87,7 @@ const DeleteTodoDialog = ({
       });
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error creating todo:', error);
+      console.error('Error deleting todo:', error);
     }
   };
 

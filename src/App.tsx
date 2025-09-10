@@ -14,7 +14,8 @@ import {
   bundleIcon,
 } from '@fluentui/react-icons';
 import { ApolloProvider } from '@apollo/client/react';
-import apolloClient from './apollo/client';
+import { type ApolloClient } from '@apollo/client';
+import { EntityCacheProvider } from './utils/context/EntityCacheContext';
 
 const ContentIcon = bundleIcon(ContentView24Filled, ContentView24Regular);
 const TableIcon = bundleIcon(Table24Filled, Table24Regular);
@@ -67,27 +68,33 @@ const routeConfigs: RouteConfig[] = [
   },
 ];
 
-function App() {
+interface AppProps {
+  client: ApolloClient;
+}
+
+function App({ client }: AppProps) {
   return (
-    <ApolloProvider client={apolloClient}>
-      <AppContainer
-        layoutProps={{
-          headerProps: {
-            appName: 'TODO Manager',
-            showSearch: false,
-            showHelp: false,
-            showNotifications: false,
-            showSettings: false,
-            showUserMenu: false,
-          },
-          sidebarProps: {
-            navigationItems,
-          },
-          mainContentProps: {
-            routes: routeConfigs,
-          },
-        }}
-      />
+    <ApolloProvider client={client}>
+      <EntityCacheProvider apolloClient={client}>
+        <AppContainer
+          layoutProps={{
+            headerProps: {
+              appName: 'TODO Manager',
+              showSearch: false,
+              showHelp: false,
+              showNotifications: false,
+              showSettings: false,
+              showUserMenu: false,
+            },
+            sidebarProps: {
+              navigationItems,
+            },
+            mainContentProps: {
+              routes: routeConfigs,
+            },
+          }}
+        />
+      </EntityCacheProvider>
     </ApolloProvider>
   );
 }

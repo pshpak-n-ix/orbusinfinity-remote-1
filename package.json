@@ -9,12 +9,14 @@
     "@orbusinfinity-shared/app-container": "^1.4.3",
     "@orbusinfinity-shared/communication": "^2.0.12",
     "@orbusinfinity-shared/ui-components": "^3.0.8",
+    "apollo3-cache-persist": "^0.15.0",
     "graphql": "^16.11.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-error-boundary": "^6.0.0",
     "react-router-dom": "6.29.0",
-    "recharts": "^2.1.9"
+    "recharts": "^2.1.9",
+    "scheduler": "^0.26.0"
   },
   "devDependencies": {
     "@craco/craco": "7.1.0",
