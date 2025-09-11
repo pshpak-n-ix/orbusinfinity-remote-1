@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useApolloClient } from '@apollo/client/react';
 import type { DocumentNode, OperationVariables } from '@apollo/client';
 import {
@@ -8,6 +8,7 @@ import {
   Position,
 } from '../entityCacheManager';
 import { useEntityCacheManager } from '../context/EntityCacheContext';
+import { APOLLO_CACHE_KEY } from '../constants';
 
 export function useContextEntityData<
   TData = unknown,
@@ -68,6 +69,53 @@ export function useContextEntityData<
     },
     [query, options.variables, queryResult]
   );
+
+  const waitingForStorageRef = useRef(false);
+
+  useEffect(() => {
+    let broadcastChannel: BroadcastChannel | null = null;
+
+    if (typeof BroadcastChannel !== 'undefined') {
+      broadcastChannel = new BroadcastChannel('entity-cache-sync');
+
+      const handleBroadcastMessage = (event: MessageEvent) => {
+        const eventData = event.data as {
+          type?: string;
+          entityKey?: string;
+          operationType?: string;
+          timestamp?: number;
+        };
+
+        if (
+          eventData.type === 'cache-update' &&
+          eventData.entityKey === entityKey
+        ) {
+          // Set flag to start waiting for storage event
+          waitingForStorageRef.current = true;
+        }
+      };
+
+      broadcastChannel.addEventListener('message', handleBroadcastMessage);
+    }
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (waitingForStorageRef.current && event.key === APOLLO_CACHE_KEY) {
+        // Reset flag and trigger refresh
+        waitingForStorageRef.current = false;
+        refresh(false);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      if (broadcastChannel) {
+        broadcastChannel.close();
+      }
+      window.removeEventListener('storage', handleStorageChange);
+      waitingForStorageRef.current = false;
+    };
+  }, [entityKey, refresh]);
 
   return {
     ...queryResult,

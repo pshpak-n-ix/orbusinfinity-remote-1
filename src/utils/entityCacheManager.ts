@@ -239,9 +239,14 @@ export class EntityCacheManager<T = unknown> {
   private readonly entities: Map<string, EntityConfig<T>> = new Map();
   private readonly strategies: Map<string, DataStrategy<T, EntityData<T>>> =
     new Map();
+  private broadcastChannel: BroadcastChannel | null = null;
 
   constructor(apolloClient: ApolloClient) {
     this.apolloClient = apolloClient;
+
+    if (typeof BroadcastChannel !== 'undefined') {
+      this.broadcastChannel = new BroadcastChannel('entity-cache-sync');
+    }
   }
 
   registerEntity(entityKey: string, config: EntityConfig<T>) {
@@ -361,6 +366,8 @@ export class EntityCacheManager<T = unknown> {
         }
       }
 
+      this.broadcastCacheUpdate(operation.entityKey, operation.type);
+
       return true;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -412,26 +419,62 @@ export class EntityCacheManager<T = unknown> {
     });
   }
 
+  private broadcastCacheUpdate(
+    entityKey: string,
+    operationType: EntityOperationType
+  ): void {
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        // Recreate channel if it doesn't exist or was closed
+        this.broadcastChannel ??= new BroadcastChannel('entity-cache-sync');
+
+        this.broadcastChannel.postMessage({
+          type: 'cache-update',
+          entityKey,
+          operationType,
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        // If channel was closed, recreate it and try again
+        if (
+          error instanceof DOMException &&
+          error.name === 'InvalidStateError'
+        ) {
+          try {
+            this.broadcastChannel = new BroadcastChannel('entity-cache-sync');
+            this.broadcastChannel.postMessage({
+              type: 'cache-update',
+              entityKey,
+              operationType,
+              timestamp: Date.now(),
+            });
+          } catch (retryError) {
+            // eslint-disable-next-line no-console
+            console.warn(
+              'Failed to broadcast cache update after retry:',
+              retryError
+            );
+          }
+        } else {
+          // eslint-disable-next-line no-console
+          console.warn('Failed to broadcast cache update:', error);
+        }
+      }
+    }
+  }
+
   destroy() {
     this.entities.clear();
     this.strategies.clear();
+
+    if (this.broadcastChannel) {
+      this.broadcastChannel.close();
+    }
   }
 }
 
 export const createEntityCacheManager = <T = unknown>(
   apolloClient: ApolloClient
-): EntityCacheManager<T> => {
-  return new EntityCacheManager<T>(apolloClient);
-};
-
-export interface EntityCacheManagerConfig {
-  enableCrossTabSync?: boolean;
-  syncChannelName?: string;
-}
-
-export const createConfiguredEntityCacheManager = <T = unknown>(
-  apolloClient: ApolloClient,
-  _config: EntityCacheManagerConfig = {}
 ): EntityCacheManager<T> => {
   return new EntityCacheManager<T>(apolloClient);
 };

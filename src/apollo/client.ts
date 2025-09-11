@@ -1,13 +1,12 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { HttpLink } from '@apollo/client/link/http';
 import { CachePersistor, LocalStorageWrapper } from 'apollo3-cache-persist';
+import { APOLLO_CACHE_KEY } from '../utils/constants';
 
 const httpLink = new HttpLink({
   uri: 'http://localhost:8080/api/graphql',
   credentials: 'same-origin',
 });
-
-const APOLLO_CACHE_KEY = 'apollo-cache-persist';
 
 export async function initializeApolloClient() {
   const cache = new InMemoryCache({

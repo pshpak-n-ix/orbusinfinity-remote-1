@@ -3,8 +3,6 @@ import type { ApolloClient } from '@apollo/client';
 import {
   type EntityCacheManager,
   createEntityCacheManager,
-  createConfiguredEntityCacheManager,
-  type EntityCacheManagerConfig,
 } from '../entityCacheManager';
 
 interface EntityCacheContextValue {
@@ -16,14 +14,12 @@ const EntityCacheContext = createContext<EntityCacheContextValue | null>(null);
 interface EntityCacheProviderProps {
   children: React.ReactNode;
   apolloClient: ApolloClient;
-  config?: EntityCacheManagerConfig;
   cacheManager?: EntityCacheManager;
 }
 
 export function EntityCacheProvider({
   children,
   apolloClient,
-  config,
   cacheManager: providedCacheManager,
 }: EntityCacheProviderProps) {
   const cacheManagerRef = useRef<EntityCacheManager | null>(null);
@@ -33,12 +29,10 @@ export function EntityCacheProvider({
       return providedCacheManager;
     }
 
-    cacheManagerRef.current ??= config
-      ? createConfiguredEntityCacheManager(apolloClient, config)
-      : createEntityCacheManager(apolloClient);
+    cacheManagerRef.current ??= createEntityCacheManager(apolloClient);
 
     return cacheManagerRef.current;
-  }, [apolloClient, config, providedCacheManager]);
+  }, [apolloClient, providedCacheManager]);
 
   useEffect(() => {
     return () => {
@@ -87,13 +81,12 @@ export function withEntityCacheManager<P extends object>(
   return function WrappedComponent(
     props: P & {
       apolloClient: ApolloClient;
-      cacheConfig?: EntityCacheManagerConfig;
     }
   ) {
-    const { apolloClient, cacheConfig, ...restProps } = props;
+    const { apolloClient, ...restProps } = props;
 
     return (
-      <EntityCacheProvider apolloClient={apolloClient} config={cacheConfig}>
+      <EntityCacheProvider apolloClient={apolloClient}>
         <Component {...(restProps as P)} />
       </EntityCacheProvider>
     );
