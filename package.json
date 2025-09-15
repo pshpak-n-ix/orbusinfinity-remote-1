@@ -7,9 +7,9 @@
     "@apollo/client": "^3.7.17",
     "@fluentui/react-components": "^9.68.3",
     "@orbusinfinity-shared/apollo-cache": "^1.0.5",
-    "@orbusinfinity-shared/app-container": "^1.4.3",
-    "@orbusinfinity-shared/communication": "^2.0.12",
-    "@orbusinfinity-shared/ui-components": "^3.0.8",
+    "@orbusinfinity-shared/app-container": "^3.0.0",
+    "@orbusinfinity-shared/communication": "^4.0.0",
+    "@orbusinfinity-shared/ui-components": "^6.0.0",
     "apollo3-cache-persist": "^0.15.0",
     "graphql": "^16.11.0",
     "react": "^18.3.1",
@@ -44,7 +44,13 @@
   "overrides": {
     "typescript": "~5.8.3",
     "@typescript-eslint/eslint-plugin": "8.39.1",
-    "@typescript-eslint/parser": "8.39.1"
+    "@typescript-eslint/parser": "8.39.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@fluentui/react-components": "^9.68.3",
+    "react-router-dom": "6.29.0",
+    "scheduler": "^0.26.0",
+    "eslint": "^8.57.1"
   },
   "scripts": {
     "start": "craco start",
