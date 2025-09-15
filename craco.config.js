@@ -36,6 +36,7 @@ module.exports = {
             // The alias on the left ('./ButtonPanel') is what the shell will use to import.
             // The path on the right ('./src/components/ButtonPanel') is the actual file path.
             "./Grid": "./src/components/GridMock",
+            "./TodoList": "./src/components/TodoListWrapper",
           },
           // Shared dependencies MUST be configured identically to the shell app.
           shared: {
@@ -44,6 +45,10 @@ module.exports = {
             "react-router-dom": { singleton: true, requiredVersion: ">=6.29.0" },
             "@fluentui/react-components": { singleton: true, requiredVersion: ">=9.68.3" },
             "@orbusinfinity-shared/ui-components": { singleton: false, requiredVersion: ">=3" },
+            "@apollo/client": { singleton: true, requiredVersion: ">=3.7.17" },
+            "@orbusinfinity-shared/apollo-cache": { singleton: true, requiredVersion: ">=1.0.5" },
+            "apollo3-cache-persist": { singleton: true, requiredVersion: ">=0.15.0" },
+            "graphql": { singleton: true, requiredVersion: ">=16.11.0" },
           },
         }),
         // Explicitly define NODE_ENV for React's build process

@@ -4,8 +4,9 @@
   "private": true,
   "homepage": "./",
   "dependencies": {
-    "@apollo/client": "^4.0.4",
+    "@apollo/client": "^3.7.17",
     "@fluentui/react-components": "^9.68.3",
+    "@orbusinfinity-shared/apollo-cache": "^1.0.5",
     "@orbusinfinity-shared/app-container": "^1.4.3",
     "@orbusinfinity-shared/communication": "^2.0.12",
     "@orbusinfinity-shared/ui-components": "^3.0.8",

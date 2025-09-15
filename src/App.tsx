@@ -15,7 +15,7 @@ import {
 } from '@fluentui/react-icons';
 import { ApolloProvider } from '@apollo/client/react';
 import { type ApolloClient } from '@apollo/client';
-import { EntityCacheProvider } from './utils/context/EntityCacheContext';
+import { EntityCacheProvider } from '@orbusinfinity-shared/apollo-cache';
 
 const ContentIcon = bundleIcon(ContentView24Filled, ContentView24Regular);
 const TableIcon = bundleIcon(Table24Filled, Table24Regular);

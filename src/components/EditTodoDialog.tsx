@@ -20,7 +20,7 @@ import {
 } from '@fluentui/react-components';
 import { UPDATE_TODO, TodoPriority } from '../apollo/operations';
 import type { Todo, UpdateTodoInput } from '../apollo/operations';
-import { useContextEntityMutations } from '../utils/hooks/useEntityCache';
+import { useEntityMutations } from '@orbusinfinity-shared/apollo-cache';
 
 const useStyles = makeStyles({
   dialogBody: {
@@ -61,9 +61,7 @@ const EditTodoDialog = ({
   const [errors, setErrors] = useState<string[]>([]);
   const styles = useStyles();
 
-  // Use the new simplified entity mutations hook
-  const { updateEntity: updateTodo } =
-    useContextEntityMutations<Todo>(entityKey);
+  const { updateEntity: updateTodo } = useEntityMutations<Todo>(entityKey);
 
   useEffect(() => {
     setFormData({

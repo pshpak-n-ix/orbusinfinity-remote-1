@@ -14,7 +14,7 @@ import {
 } from '@fluentui/react-components';
 import { DELETE_TODO } from '../apollo/operations';
 import type { Todo } from '../apollo/operations';
-import { useContextEntityMutations } from '../utils/hooks/useEntityCache';
+import { useEntityMutations } from '@orbusinfinity-shared/apollo-cache';
 
 const useStyles = makeStyles({
   dialogBody: {
@@ -53,9 +53,7 @@ const DeleteTodoDialog = ({
   const [error, setError] = useState<string>('');
   const styles = useStyles();
 
-  // Use the new simplified entity mutations hook
-  const { removeEntity: removeTodo } =
-    useContextEntityMutations<Todo>(entityKey);
+  const { removeEntity: removeTodo } = useEntityMutations<Todo>(entityKey);
 
   const [deleteTodo, { loading }] = useMutation<{
     deleteTodo: {
@@ -65,7 +63,6 @@ const DeleteTodoDialog = ({
   }>(DELETE_TODO, {
     onCompleted: async data => {
       if (data.deleteTodo.success) {
-        // Use the new entity cache system for optimistic updates
         await removeTodo(todo.id);
 
         setError('');

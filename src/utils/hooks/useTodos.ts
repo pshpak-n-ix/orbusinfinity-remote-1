@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import { GET_TODOS, TodoSortField } from '../../apollo/operations';
 import type { Todo } from '../../apollo/types';
-import { useContextEntity } from './useEntityCache';
-import { DataStructure } from '../entityCacheManager';
+import { DataStructure, useEntity } from '@orbusinfinity-shared/apollo-cache';
 
 export const DEFAULT_TODOS_VARIABLES = {
   pagination: {
@@ -43,7 +42,7 @@ export function useTodos(
     upsertEntity: upsertTodo,
     replaceEntities: replaceTodos,
     updateEntityFields: updateTodoFields,
-  } = useContextEntity<TodosQueryData, Todo>(entityKey, GET_TODOS, {
+  } = useEntity<TodosQueryData, Todo>(entityKey, GET_TODOS, {
     variables,
     config: {
       queryResultKey: 'todos',
@@ -55,12 +54,10 @@ export function useTodos(
     },
   });
 
-  // Extract todos from the data structure
   const todos = data?.todos.data ?? [];
   const pagination = data?.todos.pagination;
 
   return {
-    // Query state
     loading,
     error,
     todos,
@@ -68,7 +65,6 @@ export function useTodos(
     refresh,
     entityKey,
 
-    // Mutation methods
     addTodo,
     updateTodo,
     removeTodo,

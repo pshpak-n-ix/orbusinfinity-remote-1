@@ -20,7 +20,7 @@ import {
 import { CREATE_TODO, TodoPriority } from '../apollo/operations';
 import type { CreateTodoInput } from '../apollo/operations';
 import type { Todo } from '../apollo/types';
-import { useContextEntityMutations } from '../utils/hooks/useEntityCache';
+import { useEntityMutations } from '@orbusinfinity-shared/apollo-cache';
 
 const useStyles = makeStyles({
   dialogBody: {
@@ -59,7 +59,7 @@ const CreateTodoDialog = ({
   const styles = useStyles();
 
   // Use the new simplified entity mutations hook
-  const { addEntity: addTodo } = useContextEntityMutations<Todo>(entityKey);
+  const { addEntity: addTodo } = useEntityMutations<Todo>(entityKey);
 
   const [createTodo, { loading }] = useMutation<{
     createTodo: {
