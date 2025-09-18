@@ -6,9 +6,9 @@
   "dependencies": {
     "@apollo/client": "^3.7.17",
     "@fluentui/react-components": "^9.68.3",
-    "@orbusinfinity-shared/apollo-cache": "^1.0.5",
-    "@orbusinfinity-shared/app-container": "^3.0.1",
-    "@orbusinfinity-shared/ui-components": "^6.0.0",
+    "@orbusinfinity-shared/apollo-cache": "1.0.0",
+    "@orbusinfinity-shared/app-container": "1.0.0",
+    "@orbusinfinity-shared/ui-components": "1.0.0",
     "apollo3-cache-persist": "^0.15.0",
     "graphql": "^16.11.0",
     "react": "^18.3.1",
