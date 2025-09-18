@@ -34,7 +34,7 @@ module.exports = {
           filename: "remoteEntry.js",
           exposes: {
             "./Grid": "./src/components/GridMock",
-            "./TodoList": "./src/components/TodoListWrapper",
+            "./TodoList": "./src/components/TodoList",
           },
           shared: webpackConfig.sharedDependencies,
         }),
