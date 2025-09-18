@@ -1,31 +1,25 @@
 module.exports = {
-  extends: [
-    'react-app',
-    'react-app/jest',
-    'prettier',
-  ],
+  extends: ['react-app', 'react-app/jest', 'prettier'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: './tsconfig.json',
+    project: true,
     ecmaVersion: 'latest',
     sourceType: 'module',
     ecmaFeatures: {
       jsx: true,
     },
   },
-  plugins: [
-    '@typescript-eslint',
-    'react',
-    'react-hooks',
-    'import',
-  ],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'import'],
   rules: {
     // TypeScript strict rules
-    '@typescript-eslint/no-unused-vars': ['error', { 
-      argsIgnorePattern: '^_',
-      varsIgnorePattern: '^_',
-      caughtErrorsIgnorePattern: '^_'
-    }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-non-null-assertion': 'error',
     '@typescript-eslint/prefer-nullish-coalescing': 'error',
@@ -88,7 +82,10 @@ module.exports = {
     'react/jsx-boolean-value': ['error', 'never'],
     'react/jsx-closing-bracket-location': 'error',
     'react/jsx-closing-tag-location': 'error',
-    'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+    'react/jsx-curly-brace-presence': [
+      'error',
+      { props: 'never', children: 'never' },
+    ],
     'react/jsx-fragments': ['error', 'syntax'],
     'react/jsx-no-comment-textnodes': 'error',
     'react/jsx-no-duplicate-props': 'error',
@@ -120,8 +117,8 @@ module.exports = {
     'no-useless-constructor': 'off', // Handled by @typescript-eslint/no-useless-constructor
     '@typescript-eslint/no-useless-constructor': 'error',
     'no-throw-literal': 'error',
-    'eqeqeq': ['error', 'always'],
-    'curly': ['error', 'all'],
+    eqeqeq: ['error', 'always'],
+    curly: ['error', 'all'],
     'consistent-return': 'error',
     'array-callback-return': 'error',
     'no-unreachable': 'error',
