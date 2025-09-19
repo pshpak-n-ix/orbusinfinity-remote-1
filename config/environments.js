@@ -1,7 +1,10 @@
+// Read version from package.json
+const packageJson = require('../package.json');
+
 const baseConfig = {
-  appName: 'remote-1',
+  appName: packageJson.name,
   displayName: 'Remote Application 1',
-  version: '0.1.0',
+  version: packageJson.version,
 
   ports: {
     dev: 3002,
@@ -14,24 +17,24 @@ const baseConfig = {
       './TodoList': './src/components/TodoListWrapper',
     },
     shared: {
-      react: { singleton: true, requiredVersion: '>=18.3.1' },
-      'react-dom': { singleton: true, requiredVersion: '>=18.3.1' },
-      'react-router-dom': { singleton: true, requiredVersion: '>=6.29.0' },
+      '@apollo/client': { singleton: true, requiredVersion: '>=3.7.17' },
       '@fluentui/react-components': {
         singleton: true,
         requiredVersion: '>=9.68.3',
       },
-      '@orbusinfinity-shared/ui-components': {
-        singleton: false,
-        requiredVersion: '>=3',
-      },
-      '@apollo/client': { singleton: true, requiredVersion: '>=3.7.17' },
       '@orbusinfinity-shared/apollo-cache': {
         singleton: true,
-        requiredVersion: '>=1.0.5',
+        requiredVersion: '>=1.0.0',
+      },
+      '@orbusinfinity-shared/ui-components': {
+        singleton: false,
+        requiredVersion: '>=1.0.0',
       },
       'apollo3-cache-persist': { singleton: true, requiredVersion: '>=0.15.0' },
+      'react-dom': { singleton: true, requiredVersion: '>=18.3.1' },
+      'react-router-dom': { singleton: true, requiredVersion: '>=6.29.0' },
       graphql: { singleton: true, requiredVersion: '>=16.11.0' },
+      react: { singleton: true, requiredVersion: '>=18.3.1' },
     },
   },
 };
@@ -77,7 +80,7 @@ const environments = {
     },
 
     build: {
-      publicPath: 'http://localhost:8080/dist/remote-1/0.1.0/',
+      publicPath: `http://localhost:8080/dist/${packageJson.name}/${packageJson.version}/`,
       minify: true,
       splitChunks: true,
     },
