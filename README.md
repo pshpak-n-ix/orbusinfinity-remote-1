@@ -27,4 +27,35 @@ npm run analyze     # Bundle size analysis
 
 ## Configuration
 
-Settings can be updated in `config/environments.js` to modify ports, API endpoints, build options, and CORS settings.
+The application uses a modular configuration structure for better maintainability:
+
+### Configuration Files
+
+- **`config/mf-config.js`** - Module federation settings (shared dependencies, exposed modules)
+- **`config/api-config.js`** - GraphQL API endpoints
+- **`config/build-config.js`** - Build settings (ports, CORS, source maps, minification, splitChunks)
+- **`config/environments.js`** - Main configuration that combines all modular configs
+
+### Port Configuration
+
+- **Development**: Runs on port 3002
+- **Production**: Served through nginx on port 8080 with versioned paths
+
+The configuration automatically handles:
+
+- Dynamic `publicPath` generation based on environment
+- CORS settings for cross-origin requests
+- Module federation shared dependencies
+- Environment-specific build optimizations
+
+## Module Federation
+
+This application exposes the following modules:
+
+```javascript
+{
+  './TodoList': './src/components/TodoListWrapper'
+}
+```
+
+The `TodoList` component can be imported and used by the host application to display todo functionality.

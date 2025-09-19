@@ -1,110 +1,33 @@
-// Read version from package.json
 const packageJson = require('../package.json');
+const { getMfConfig } = require('./mf-config');
+const { getApiConfig } = require('./api-config');
+const { getBuildConfig } = require('./build-config');
 
 const baseConfig = {
   appName: packageJson.name,
   displayName: 'Remote Application 1',
   version: packageJson.version,
-
-  ports: {
-    dev: 3002,
-  },
-
-  federation: {
-    name: 'remote_app_1',
-    filename: 'remoteEntry.js',
-    exposes: {
-      './TodoList': './src/components/TodoListWrapper',
-    },
-    shared: {
-      '@apollo/client': { singleton: true, requiredVersion: '>=3.7.17' },
-      '@fluentui/react-components': {
-        singleton: true,
-        requiredVersion: '>=9.68.3',
-      },
-      '@orbusinfinity-shared/apollo-cache': {
-        singleton: true,
-        requiredVersion: '>=1.0.0',
-      },
-      '@orbusinfinity-shared/ui-components': {
-        singleton: false,
-        requiredVersion: '>=1.0.0',
-      },
-      'apollo3-cache-persist': { singleton: true, requiredVersion: '>=0.15.0' },
-      'react-dom': { singleton: true, requiredVersion: '>=18.3.1' },
-      'react-router-dom': { singleton: true, requiredVersion: '>=6.29.0' },
-      graphql: { singleton: true, requiredVersion: '>=16.11.0' },
-      react: { singleton: true, requiredVersion: '>=18.3.1' },
-    },
-  },
-};
-
-const environments = {
-  development: {
-    name: 'development',
-
-    api: {
-      graphqlUrl: 'http://localhost:3100/api/graphql',
-    },
-
-    features: {
-      enableSourceMaps: true,
-    },
-
-    build: {
-      publicPath: 'auto',
-      minify: false,
-      splitChunks: false,
-    },
-
-    cors: {
-      origin: '*',
-      allowedMethods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      allowedHeaders: 'X-Requested-With, content-type, Authorization',
-      allowedHosts: Array.from(
-        { length: 101 },
-        (_, i) => `http://localhost:${3000 + i}`
-      ),
-    },
-  },
-
-  production: {
-    name: 'production',
-
-    api: {
-      graphqlUrl: 'http://localhost:3100/api/graphql',
-    },
-
-    features: {
-      enableSourceMaps: false,
-    },
-
-    build: {
-      publicPath: `http://localhost:8080/dist/${packageJson.name}/${packageJson.version}/`,
-      minify: true,
-      splitChunks: true,
-    },
-
-    cors: {
-      origin: ['http://localhost:8080'],
-      allowedMethods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      allowedHeaders: 'X-Requested-With, content-type, Authorization',
-      allowedHosts: ['localhost'],
-    },
-  },
 };
 
 function getConfig(env = process.env.NODE_ENV || 'development') {
-  if (!environments[env]) {
-    throw new Error(
-      `Environment '${env}' not found. Available environments: ${Object.keys(environments).join(', ')}`
-    );
-  }
+  const mfConfig = getMfConfig();
+  const apiConfig = getApiConfig(env);
+  const buildConfig = getBuildConfig(env);
+  
+  const publicPath = env === 'development' 
+    ? `http://localhost:${buildConfig.port}/`
+    : `http://localhost:${buildConfig.port}/dist/${packageJson.name}/${packageJson.version}/`;
 
   return {
     ...baseConfig,
-    ...environments[env],
-    environment: env,
+    ...buildConfig,
+    federation: mfConfig,
+    api: apiConfig,
+    build: {
+      publicPath,
+      minify: buildConfig.minify,
+      splitChunks: buildConfig.splitChunks,
+    },
   };
 }
 
@@ -145,8 +68,8 @@ function createWebpackConfig(options = {}) {
     publicPath: config.build.publicPath,
     corsHeaders: getCorsHeaders(env),
     sharedDependencies: config.federation.shared,
-    devServerPort: config.ports.dev,
-    enableSourceMaps: config.features.enableSourceMaps,
+    devServerPort: config.port,
+    enableSourceMaps: config.enableSourceMaps,
     enableMinification: config.build.minify,
     enableSplitChunks: config.build.splitChunks,
     ...options,
@@ -158,6 +81,4 @@ module.exports = {
   getReactEnvVars,
   getCorsHeaders,
   createWebpackConfig,
-  environments: Object.keys(environments),
-  baseConfig,
 };
